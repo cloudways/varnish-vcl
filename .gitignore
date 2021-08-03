@@ -1,0 +1,4 @@
+#Varnish VCL ignore files
+varnish_default_ttl.vcl
+additional_vcls/*
+secret
