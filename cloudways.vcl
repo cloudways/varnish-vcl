@@ -11,9 +11,30 @@ acl purge {
 }
 
 sub vcl_hit {
-  if (req.method == "PURGE") {    
+  if (req.method == "PURGE") {
     return(synth(200,"OK"));
+    if (req.http.X-Application ~ "(?i)magento" && req.http.X-Version ~ "^2") {
+            if (obj.ttl >= 0s) {
+        # Hit within TTL period
+        return (deliver);
+    }
+    if (std.healthy(req.backend_hint)) {
+        if (obj.ttl + 300s > 0s) {
+            # Hit after TTL expiration, but within grace period
+            set req.http.grace = "normal (healthy server)";
+            return (deliver);
+        } else {
+            # Hit after TTL and grace expiration
+            return (restart);
+        }
+    } else {
+        # server is not healthy, retrieve from cache
+        set req.http.grace = "unlimited (unhealthy server)";
+        return (deliver);
+    }
+
   }
+}
 }
 
 sub vcl_miss {
@@ -77,7 +98,8 @@ sub vcl_backend_response {
    if ( beresp.status == 500 || 
         beresp.status == 502 || 
         beresp.status == 503 || 
-        beresp.status == 504 || 
+        beresp.status == 504 ||
+        beresp.status == 400 || 
         beresp.status == 404 || 
         beresp.status == 403 ){
      set beresp.uncacheable = true;
@@ -166,4 +188,11 @@ sub vcl_synth {
    return (deliver);
 }
 
-
+sub process_graphql_headers {
+    if (req.http.Store) {
+        hash_data(req.http.Store);
+    }
+    if (req.http.Content-Currency) {
+        hash_data(req.http.Content-Currency);
+    }
+}

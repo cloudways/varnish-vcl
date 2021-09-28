@@ -48,9 +48,9 @@ return (pipe);
 }
 
 # Strip out Google Analytics campaign variables.
-if (req.url ~ "(\?|&)(msclkid|gclid|dm_i|qid|mc_eid|mc_cid|fbclid|cx|ie|cof|siteurl|zanpid|origin|utm_[a-z]+|mr:[A-z]+)=") {
-set req.url = regsuball(req.url, "(gclid|fbclid|dm_i|qid|cx|ie|cof|mc_eid|mc_cid|siteurl|zanpid|origin|utm_[a-z]+|mr:[A-z]+)=[-_A-z0-9+()%.,]+&?", "");
-set req.url = regsub(req.url, "(\?&?)$", ""); }
+#if (req.url ~ "(\?|&)(msclkid|gclid|dm_i|qid|mc_eid|mc_cid|fbclid|cx|ie|cof|siteurl|zanpid|origin|utm_[a-z]+|mr:[A-z]+)=") {
+#set req.url = regsuball(req.url, "(gclid|fbclid|dm_i|qid|cx|ie|cof|mc_eid|mc_cid|siteurl|zanpid|origin|utm_[a-z]+|mr:[A-z]+)=[-_A-z0-9+()%.,]+&?", "");
+#set req.url = regsub(req.url, "(\?&?)$", ""); }
 
 #Cache everything else
 if (!req.url ~ "/wp-(login|admin|cron)|logout|lost-password|wc-api|cart|my-account|checkout|addons|administrator|accounts|bookings|members|member|course|resetpass") {
